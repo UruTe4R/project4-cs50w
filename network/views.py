@@ -1,17 +1,32 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.db import models
 
-from .models import User
+
+from .models import User, Post, Comment
+from .forms import PostForm
 
 
 def index(request):
     return render(request, "network/index.html")
 
-def create_post(request):
-    ...
+def posts(request):
+    # Get all posts in descending order
+    posts = Post.objects.all().order_by('-timestamp')
+    if request.method == "POST":
+        ...
+    else:
+        post_list = [{
+            "poster": post.poster.username,
+            "content": post.content,
+            "likes": post.likes.aggregate(models.Count('likes'))["likes__count"],
+            "timestamp": post.timestamp
+        } for post in posts]
+            
+        return JsonResponse({"post_list": post_list}, status=200)
 
 def edit_post(request):
     ...
