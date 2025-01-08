@@ -3,6 +3,7 @@
 {% block body %}
 {% if user.is_authenticated %}
 <div id="all-posts-view">
+    <!-- create post form -->
     <h1>All Posts</h1>
     <div class="form-container">
         <form id="post-form" action="{% url 'posts' %}" method="post">
@@ -15,6 +16,10 @@
             </div>
         </form>
     </div>
+
+    <!-- render posts -->
+    
+
 </div>
 <div id="following-view">
     <h1>Following</h1>

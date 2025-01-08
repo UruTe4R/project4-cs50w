@@ -23,6 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   document.querySelector('.form-textarea').addEventListener('input', () => {
     word_length.innerHTML = max_word_length - document.querySelector('.form-textarea').value.length
+    if (word_length.innerHTML < 20) {
+      word_length.style.color = 'red'
+    } else {
+      word_length.style.color = 'green'
+    }
   })
 
 })
@@ -51,7 +56,50 @@ function loadPosts() {
       // For TEST
       console.log(poster, content, likes, timestamp)
       // TODO CREATE ELEMENT AND APPEND TO DOM BUT BEFORE THAT CREATE POST OBJECT
+      // div.post_container>div.poster+button.edit-button+div.post-content+div.post-timestamp+div.post-likes+div.post-comment
 
+      // CREATE POST AND RENDER
+      // Create elements
+      const post_container = document.createElement('div')
+      post_container.classList.add('post_container')
+
+      const post_header = document.createElement('div')
+      post_header.classList.add('post_header')
+
+      const post_footer = document.createElement('div')
+      post_footer.classList.add('post_footer')
+
+      post_elements = {
+        'post_poster': poster,
+        'post_content': content,
+        'post_timestamp': timestamp,
+        'post_likes': `&#9829;${likes}`,
+        'post_comment': 'comment'}
+
+      const elements = {}
+      
+      // create divs from post_elements and save to elements
+      Object.keys(post_elements).forEach(element => {
+        const div = document.createElement('div')
+        div.classList.add(element)
+        div.innerHTML = post_elements[element]
+        elements[element] = div
+      })
+
+      const button_wrapper = document.createElement('div')
+      button_wrapper.classList.add('button_wrapper')
+
+      const edit_button = document.createElement('button')
+      edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
+      edit_button.innerHTML = 'Edit'
+      button_wrapper.append(edit_button)
+
+      post_header.append(elements["post_poster"], elements["post_timestamp"], button_wrapper)
+      post_container.append(post_header, elements["post_content"])
+
+      post_footer.append(elements["post_comment"], elements["post_likes"])
+      post_container.append(post_footer)
+      post_view.append(post_container)
     })
   })
 }

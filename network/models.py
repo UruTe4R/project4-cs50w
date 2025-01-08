@@ -19,7 +19,7 @@ class Post(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.poster} posted on {self.timestamp} with {self.likes} likes"
+        return f"{self.poster}: {self.content}"
     
 class Comment(models.Model):
     commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="commenter")

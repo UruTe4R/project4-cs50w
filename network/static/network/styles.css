@@ -1,3 +1,10 @@
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 /* add nav-link hover effect */
 .pointer:hover {
   cursor: pointer;
@@ -27,4 +34,87 @@
   justify-content: space-between;
   align-items: center;
   flex-direction: row;
+}
+
+#word-length {
+  color: green;
+}
+
+/* post style */
+.post_container {
+  width: 90vw;
+  height: 15vh;
+  border: 2px solid black;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 10px;
+  margin: 10px 0px;
+}
+
+.post_header {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.post_poster {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  flex-grow: 1;
+  padding-bottom: 5px;
+}
+
+.post_timestamp {
+  color: rgba(0, 0, 0, 0.5);
+  flex-grow: 1;
+}
+
+.button_wrapper {
+  flex-grow: 5;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+
+.post_content {
+  flex-grow: 2;
+  width: 100%;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.post_footer {
+  flex-grow: 1;
+  display: flex;
+  width: 50%;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post_comment {
+  color: rgba(0, 0, 0, 0.5);
+}
+.post_comment:hover {
+  cursor: pointer;
+}
+
+.post_likes {
+  color: red;
+}
+.post_likes:hover {
+  cursor: pointer;
 }
