@@ -20,7 +20,17 @@ def posts(request):
     # Get all posts in descending order
     posts = Post.objects.all().order_by('-timestamp')
     if request.method == "POST":
-        ...
+        print("request.POST:", request.POST)
+        post = PostForm(request.POST)
+        # Return error if form is invalid
+        if not post.is_valid():
+            return render(request, 'network/index.html', {
+                "post_form": post
+            })
+        post = post.save(commit=False)
+        post.poster = request.user
+        post.save()
+        return HttpResponseRedirect(reverse("index"))
     else:
         post_list = [{
             "poster": post.poster.username,

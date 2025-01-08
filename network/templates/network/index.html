@@ -5,10 +5,14 @@
 <div id="all-posts-view">
     <h1>All Posts</h1>
     <div class="form-container">
-        <form action="{% url 'posts' %}" method="post">
+        <form id="post-form" action="{% url 'posts' %}" method="post">
             <h2>New Post</h2>
             {% csrf_token %}
             {{ post_form.as_p }}
+            <div class="form-under">
+                <input id="post-button" type="submit" class="btn btn-primary" value="Post">
+                <div id="word-length">300</div>
+            </div>
         </form>
     </div>
 </div>

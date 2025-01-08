@@ -17,8 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // By Default, Load All Posts View
   loadPosts()
 
+  // show word length
+  const word_length = document.querySelector('#word-length')
+  let max_word_length = 300
   
+  document.querySelector('.form-textarea').addEventListener('input', () => {
+    word_length.innerHTML = max_word_length - document.querySelector('.form-textarea').value.length
+  })
+
 })
+
+
 
 function loadPosts() {
   console.log('loadPosts')
@@ -26,6 +35,8 @@ function loadPosts() {
   post_view.style.display = 'block'
   following_view.style.display = 'none'
   user_info_view.style.display = 'none'
+
+  
 
   // Fetch to Load Posts
   fetch('/posts')

@@ -9,7 +9,7 @@ class PostForm(forms.ModelForm):
             "content": ""
         }
         widgets = {
-            "content": forms.TextInput(attrs={
-                "class": "form-control"
+            "content": forms.Textarea(attrs={
+                "class": "form-textarea"
             })
         }
