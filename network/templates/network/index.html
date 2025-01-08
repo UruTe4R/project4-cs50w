@@ -4,7 +4,7 @@
 {% if user.is_authenticated %}
 <div id="all-posts-view">
     <!-- create post form -->
-    <h1>All Posts</h1>
+    <h1 id="posts-header">All Posts</h1>
     <div class="form-container">
         <form id="post-form" action="{% url 'posts' %}" method="post">
             <h2>New Post</h2>
@@ -18,7 +18,9 @@
     </div>
 
     <!-- render posts -->
-    
+    <div id="posts">
+
+    </div>
 
 </div>
 <div id="following-view">

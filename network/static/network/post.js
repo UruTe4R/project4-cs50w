@@ -41,8 +41,7 @@ function loadPosts() {
   following_view.style.display = 'none'
   user_info_view.style.display = 'none'
 
-  
-
+  const posts = document.querySelector('#posts').innerHTML = ''
   // Fetch to Load Posts
   fetch('/posts')
   .then(response => response.json())
@@ -55,7 +54,7 @@ function loadPosts() {
       const timestamp = post["timestamp"]
       // For TEST
       console.log(poster, content, likes, timestamp)
-      // TODO CREATE ELEMENT AND APPEND TO DOM BUT BEFORE THAT CREATE POST OBJECT
+
       // div.post_container>div.poster+button.edit-button+div.post-content+div.post-timestamp+div.post-likes+div.post-comment
 
       // CREATE POST AND RENDER
@@ -99,7 +98,7 @@ function loadPosts() {
 
       post_footer.append(elements["post_comment"], elements["post_likes"])
       post_container.append(post_footer)
-      post_view.append(post_container)
+      document.querySelector('#posts').append(post_container)
     })
   })
 }
