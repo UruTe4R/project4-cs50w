@@ -11,7 +11,10 @@ from .forms import PostForm
 
 
 def index(request):
-    return render(request, "network/index.html")
+    post_form = PostForm()
+    return render(request, "network/index.html", {
+        "post_form": post_form
+    })
 
 def posts(request):
     # Get all posts in descending order

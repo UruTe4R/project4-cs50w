@@ -1,17 +1,23 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
+{% if user.is_authenticated %}
 <div id="all-posts-view">
     <h1>All Posts</h1>
-    
+    <div class="form-container">
+        <form action="{% url 'posts' %}" method="post">
+            <h2>New Post</h2>
+            {% csrf_token %}
+            {{ post_form.as_p }}
+        </form>
+    </div>
 </div>
-
 <div id="following-view">
-
+    <h1>Following</h1>
 </div>
 
 <div id="user-info-view">
-
+    <h1>Profile</h1>
 </div>
-    
+{% endif %}
 {% endblock %}

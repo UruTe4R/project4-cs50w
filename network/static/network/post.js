@@ -16,9 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // By Default, Load All Posts View
   loadPosts()
+
+  
 })
 
 function loadPosts() {
+  console.log('loadPosts')
   // Only Show All Posts
   post_view.style.display = 'block'
   following_view.style.display = 'none'
@@ -44,8 +47,19 @@ function loadPosts() {
 
 function loadFollowing() {
   console.log('loadFollowing')
+  console.log(post_view)
+  post_view.style.display = 'none'
+  following_view.style.display = 'block'
+  user_info_view.style.display = 'none'
+  console.log('hit')
 }
 
 function loadUserInfo() {
   console.log('loadUserInfo')
+  console.log(post_view)
+  post_view.style.display = 'none'
+  following_view.style.display = 'none'
+  user_info_view.style.display = 'block'
+  console.log('hit')
+  
 }

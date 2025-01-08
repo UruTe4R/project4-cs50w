@@ -6,7 +6,7 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ["content"]
         labels = {
-            "content": "New Post"
+            "content": ""
         }
         widgets = {
             "content": forms.TextInput(attrs={
