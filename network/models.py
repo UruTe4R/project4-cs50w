@@ -4,10 +4,18 @@ from django.db import models
 
 class User(AbstractUser):
     # symmetrical is False because user can follow and the follower user does not need to follow back
-    follow = models.ManyToManyField('self', symmetrical=False, related_name="follows" )
+    follow = models.ManyToManyField('self', symmetrical=False, related_name="follows")
+
+    introduction = models.TextField(max_length=200, blank=True, null=True, default="Hi I'm new!")
+
+    def get_follow_and_follower(self):
+        return {
+            "follows" : self.follow.count(),
+            "followers": User.objects.filter(follow=self).count()
+        }
 
     def __str__(self):
-        return f"{self.username} follows {self.follow.count()} follower {User.objects.aggregate(models.Count('follow'))['follow__count']}"
+        return f"{self.username} follows {self.follow.count()} follower {User.objects.filter(follow=self).count()}"
 
 class Post(models.Model):
     poster = models.ForeignKey(User, on_delete=models.CASCADE, related_name="poster")

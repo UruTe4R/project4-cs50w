@@ -7,13 +7,15 @@ from django.db import models
 
 
 from .models import User, Post, Comment
-from .forms import PostForm
+from .forms import PostForm, IntroductionForm
 
 
 def index(request):
     post_form = PostForm()
+    Introduction_form = IntroductionForm()
     return render(request, "network/index.html", {
-        "post_form": post_form
+        "post_form": post_form,
+        "introduction_form": Introduction_form
     })
 
 def posts(request):
@@ -39,12 +41,35 @@ def posts(request):
             "timestamp": post.timestamp
         } for post in posts]
             
-        return JsonResponse({"post_list": post_list}, status=200)
+        return JsonResponse({
+            "post_list": post_list,
+            "user": request.user.username
+            }, status=200)
+    
+def profile(request):
+    # Define follows and followers
+    user = request.user
+    follows_and_followers = user.get_follow_and_follower()
+    follows = follows_and_followers["follows"]
+    followers = follows_and_followers["followers"]
 
-def edit_post(request):
-    ...
-
-
+    # Edit profile introduction
+    if request.method == "POST":
+        user_with_new_introduction = IntroductionForm(request.POST)
+        if not user_with_new_introduction.is_valid():
+            return JsonResponse({"error": "Form is invalid"}, status=400)
+        user = user_with_new_introduction(commit=False)
+        user.save()
+        return HttpResponseRedirect(reverse("index"))
+    # GET => return JSON about user and user's posts
+    else:
+        return JsonResponse({
+            "username": user.username,
+            "introduction": user.introduction,
+            "follows": follows,
+            "followers": followers
+            },
+            status=200)
 
 
 def login_view(request):

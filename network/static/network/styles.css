@@ -124,3 +124,62 @@ body {
 .post_likes:hover {
   cursor: pointer;
 }
+
+/* profile style */
+#profile-view>h1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid black;
+  border-radius: 5px;
+  padding: 10px;
+  min-width: 200px;
+  min-height: 200px;
+  width: 40vw;
+  height: 40vh;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+  flex-grow: 1;
+  align-items: center;
+}
+
+.profile-follow-container {
+  display: flex;
+  flex-direction: row;
+  gap: 25%;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.follows {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.followers {
+
+}
+
+.username {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.introduction {
+  font-size: 1.5rem;
+  flex-grow: 5;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+  padding: 10px;
+}

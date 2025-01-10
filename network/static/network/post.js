@@ -6,13 +6,13 @@ const user_info = document.querySelector('#username')
 // Define Views
 const post_view = document.querySelector('#all-posts-view')
 const following_view = document.querySelector('#following-view')
-const user_info_view = document.querySelector('#user-info-view')
+const profile_view = document.querySelector('#profile-view')
 
 document.addEventListener('DOMContentLoaded', () => {
   // Use Buttons to Toggle Views
   document.querySelector('#all-posts').addEventListener('click', loadPosts)
   document.querySelector('#following').addEventListener('click', loadFollowing)
-  document.querySelector('#username').addEventListener('click', loadUserInfo)
+  document.querySelector('#username').addEventListener('click', loadProfile)
 
   // By Default, Load All Posts View
   loadPosts()
@@ -39,7 +39,7 @@ function loadPosts() {
   // Only Show All Posts
   post_view.style.display = 'block'
   following_view.style.display = 'none'
-  user_info_view.style.display = 'none'
+  profile_view.style.display = 'none'
 
   const posts = document.querySelector('#posts').innerHTML = ''
   // Fetch to Load Posts
@@ -48,6 +48,7 @@ function loadPosts() {
   .then(posts => {
     console.log('posts:', posts)
     posts["post_list"].forEach(post => {
+      const user = posts["user"]
       const poster = post["poster"]
       const content = post["content"]
       const likes = post["likes"]
@@ -88,10 +89,13 @@ function loadPosts() {
       const button_wrapper = document.createElement('div')
       button_wrapper.classList.add('button_wrapper')
 
-      const edit_button = document.createElement('button')
-      edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
-      edit_button.innerHTML = 'Edit'
-      button_wrapper.append(edit_button)
+      // Add Edit Button if poster is the user
+      if (user == poster) {
+        const edit_button = document.createElement('button')
+        edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
+        edit_button.innerHTML = 'Edit'
+        button_wrapper.append(edit_button)
+      }
 
       post_header.append(elements["post_poster"], elements["post_timestamp"], button_wrapper)
       post_container.append(post_header, elements["post_content"])
@@ -105,19 +109,65 @@ function loadPosts() {
 
 function loadFollowing() {
   console.log('loadFollowing')
-  console.log(post_view)
   post_view.style.display = 'none'
   following_view.style.display = 'block'
-  user_info_view.style.display = 'none'
-  console.log('hit')
+  profile_view.style.display = 'none'
 }
 
-function loadUserInfo() {
-  console.log('loadUserInfo')
-  console.log(post_view)
+function loadProfile() {
+  console.log('loadProfile')
   post_view.style.display = 'none'
   following_view.style.display = 'none'
-  user_info_view.style.display = 'block'
-  console.log('hit')
+  profile_view.style.display = 'block'
+
+  document.querySelector('#profile-content').innerHTML = ''
   
+  // Fetch to Get User Info
+  fetch('/profile')
+  .then(response => response.json())
+  .then(profile => {
+    // For TEST
+    console.log('profile:', profile)
+    console.log(profile["username"], profile["follows"], profile["followers"])
+
+    // Create Elements
+    const profile_container = document.createElement('div')
+    profile_container.classList.add('profile-container')
+
+    const profile_header = document.createElement('div')
+    profile_header.classList.add('profile-header')
+
+    const profile_follow_container = document.createElement('div')
+    profile_follow_container.classList.add('profile-follow-container')
+
+    // save element as JSobject
+    const profile_DOM = {}
+    Object.keys(profile).forEach(element => {
+      const div = document.createElement('div')
+      console.log('element:', element)
+      div.classList.add(element)
+      div.innerHTML = profile[element]
+      profile_DOM[`profile-${element}`] = div
+    })
+
+    // create edit button
+    const edit_button_container = document.createElement('div')
+    const edit_button = document.createElement('button')
+    edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
+    edit_button.innerHTML = 'Edit'
+    edit_button_container.append(edit_button)
+
+    profile_header.append(profile_DOM["profile-username"], edit_button_container)
+    profile_container.append(profile_header, profile_DOM["profile-introduction"])
+    profile_DOM["profile-follows"].innerHTML = `follows ${profile["follows"]}`
+    profile_DOM["profile-followers"].innerHTML = `followers ${profile["followers"]}`
+
+    profile_follow_container.append(profile_DOM["profile-follows"], profile_DOM["profile-followers"])
+    profile_container.append(profile_follow_container)
+    document.querySelector('#profile-content').append(profile_container)
+
+  })
+  .catch(error => {
+    console.log('error:', error)
+  })
 }

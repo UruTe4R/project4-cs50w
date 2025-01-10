@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post
+from .models import Post, User
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -10,6 +10,18 @@ class PostForm(forms.ModelForm):
         }
         widgets = {
             "content": forms.Textarea(attrs={
+                "class": "form-textarea"
+            })
+        }
+class IntroductionForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["introduction"]
+        labels = {
+            "introduction": ""
+        }
+        widgets = {
+            "introduction": forms.Textarea(attrs={
                 "class": "form-textarea"
             })
         }
