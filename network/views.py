@@ -33,6 +33,7 @@ def posts(request):
         post.poster = request.user
         post.save()
         return HttpResponseRedirect(reverse("index"))
+    # GET
     else:
         post_list = [{
             "poster": post.poster.username,
@@ -80,6 +81,30 @@ def profile(request):
             },
             "posts": post_list
         }, status=200)
+    
+def following(request):
+    user = request.user
+    # who are this user following
+    follows = user.follow.all()
+    # get posts from those followed users
+    posts = [
+        {
+        "poster": post.poster.username,
+        "timestamp": post.timestamp,
+        "content": post.content,
+        "likes": post.likes.aggregate(models.Count("likes"))["likes__count"]
+        }
+        # first loop executed first
+        for follow in follows
+        for post in Post.objects.filter(poster=follow).order_by('-timestamp')
+        ]
+    
+    return JsonResponse({
+        "posts": posts,
+    }, status=200)
+        
+def edit_post(request, post_id):
+    ...
 
 
 def login_view(request):

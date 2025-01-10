@@ -1,3 +1,11 @@
+// TODOS
+// Render following posts
+// liking feature
+// comment feature
+// UI when hovered over follows and followers 
+// Edit profile and posts
+//  //
+
 // Define Nav Buttons
 const all_posts = document.querySelector('#all-posts')
 const following = document.querySelector('#following')
@@ -29,10 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       word_length.style.color = 'green'
     }
   })
-
 })
-
-
 
 function loadPosts() {
   console.log('loadPosts')
@@ -54,11 +59,25 @@ function loadPosts() {
   })
 }
 
+
 function loadFollowing() {
   console.log('loadFollowing')
   post_view.style.display = 'none'
   following_view.style.display = 'block'
   profile_view.style.display = 'none'
+
+  document.querySelector('#following-content').innerHTML = ''
+
+  // Fetch to Load Following User's Posts
+  fetch('/following')
+  .then(response => response.json())
+  .then(following => {
+    console.log('following:', following)
+    following["posts"].forEach(post => {
+      createPost(post, '#following-content')
+    })
+  })
+
 }
 
 function loadProfile() {
@@ -108,8 +127,8 @@ function loadProfile() {
 
     profile_header.append(profile_DOM["profile-username"], edit_button_container)
     profile_container.append(profile_header, profile_DOM["profile-introduction"])
-    profile_DOM["profile-follows"].innerHTML = `follows ${profile["follows"]}`
-    profile_DOM["profile-followers"].innerHTML = `followers ${profile["followers"]}`
+    profile_DOM["profile-follows"].innerHTML = `follows ${profile["user_info"]["follows"]}`
+    profile_DOM["profile-followers"].innerHTML = `followers ${profile["user_info"]["followers"]}`
 
     profile_follow_container.append(profile_DOM["profile-follows"], profile_DOM["profile-followers"])
     profile_container.append(profile_follow_container)
@@ -132,7 +151,7 @@ function loadProfile() {
   })
 }
 
-function createPost(post, target_DOM_id, username) {
+function createPost(post, target_DOM_id, username='') {
   const poster = post["poster"]
   const content = post["content"]
   const likes = post["likes"]
@@ -170,6 +189,9 @@ function createPost(post, target_DOM_id, username) {
     elements[element] = div
   })
 
+  // Add EventListener to post_likes, enable like/unlike
+  elements["post_likes"]
+
   const button_wrapper = document.createElement('div')
   button_wrapper.classList.add('button_wrapper')
 
@@ -181,6 +203,7 @@ function createPost(post, target_DOM_id, username) {
     button_wrapper.append(edit_button)
   }
 
+  // Append everythihn to render
   post_header.append(elements["post_poster"], elements["post_timestamp"], button_wrapper)
   post_container.append(post_header, elements["post_content"])
 

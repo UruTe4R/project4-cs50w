@@ -132,12 +132,21 @@ body {
   justify-content: center;
   align-items: center;
 }
-#profile-view>h1 {
+#profile-view>h1,
+#profile-view>h2 {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
+
+#profile-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .profile-container {
   display: flex;
   flex-direction: column;
@@ -188,4 +197,18 @@ body {
   flex-grow: 5;
   border-bottom: 2px solid rgba(0, 0, 0, 0.5);
   padding: 10px;
+}
+
+/* Following style */
+#following-view {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+#following-view>h1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
