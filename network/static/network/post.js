@@ -142,7 +142,7 @@ function loadProfile() {
 
     // save element as JSobject
     const profile_DOM = {}
-    Object.keys(profile).forEach(element => {
+    Object.keys(profile["user_info"]).forEach(element => {
       const div = document.createElement('div')
       console.log('element:', element)
       div.classList.add(element)
@@ -165,6 +165,8 @@ function loadProfile() {
     profile_follow_container.append(profile_DOM["profile-follows"], profile_DOM["profile-followers"])
     profile_container.append(profile_follow_container)
     document.querySelector('#profile-content').append(profile_container)
+
+    console.log(profile["posts"])
 
   })
   .catch(error => {

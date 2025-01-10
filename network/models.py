@@ -26,6 +26,16 @@ class Post(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def liked_by(self, username):
+        """
+        Add a user to the likes field
+        """
+        # Poster cannot like their own post
+        if self.poster in self.likes:
+            self.likes.remove(self.poster)
+        User.objects.get(username=username).likes.add(self)
+
+
     def __str__(self):
         return f"{self.poster}: {self.content}"
     

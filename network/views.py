@@ -63,13 +63,23 @@ def profile(request):
         return HttpResponseRedirect(reverse("index"))
     # GET => return JSON about user and user's posts
     else:
+        posts = Post.objects.filter(poster=user).order_by("-timestamp")
+        post_list = [{
+            "poster": post.poster.username,
+            "timestamp": post.timestamp,
+            "content": post.content,
+            "likes": post.likes.aggregate(models.Count("likes"))["likes__count"]
+        } for post in posts]
+
         return JsonResponse({
+            "user_info":{
             "username": user.username,
-            "introduction": user.introduction,
+            "introduction":user.introduction,
             "follows": follows,
             "followers": followers
             },
-            status=200)
+            "posts": post_list
+        }, status=200)
 
 
 def login_view(request):
