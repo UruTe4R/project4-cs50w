@@ -47,62 +47,9 @@ function loadPosts() {
   .then(response => response.json())
   .then(posts => {
     console.log('posts:', posts)
+    const username = posts["user"]
     posts["post_list"].forEach(post => {
-      const user = posts["user"]
-      const poster = post["poster"]
-      const content = post["content"]
-      const likes = post["likes"]
-      const timestamp = post["timestamp"]
-      // For TEST
-      console.log(poster, content, likes, timestamp)
-
-      // div.post_container>div.poster+button.edit-button+div.post-content+div.post-timestamp+div.post-likes+div.post-comment
-
-      // CREATE POST AND RENDER
-      // Create elements
-      const post_container = document.createElement('div')
-      post_container.classList.add('post_container')
-
-      const post_header = document.createElement('div')
-      post_header.classList.add('post_header')
-
-      const post_footer = document.createElement('div')
-      post_footer.classList.add('post_footer')
-
-      post_elements = {
-        'post_poster': poster,
-        'post_content': content,
-        'post_timestamp': timestamp,
-        'post_likes': `&#9829;${likes}`,
-        'post_comment': 'comment'}
-
-      const elements = {}
-      
-      // create divs from post_elements and save to elements
-      Object.keys(post_elements).forEach(element => {
-        const div = document.createElement('div')
-        div.classList.add(element)
-        div.innerHTML = post_elements[element]
-        elements[element] = div
-      })
-
-      const button_wrapper = document.createElement('div')
-      button_wrapper.classList.add('button_wrapper')
-
-      // Add Edit Button if poster is the user
-      if (user == poster) {
-        const edit_button = document.createElement('button')
-        edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
-        edit_button.innerHTML = 'Edit'
-        button_wrapper.append(edit_button)
-      }
-
-      post_header.append(elements["post_poster"], elements["post_timestamp"], button_wrapper)
-      post_container.append(post_header, elements["post_content"])
-
-      post_footer.append(elements["post_comment"], elements["post_likes"])
-      post_container.append(post_footer)
-      document.querySelector('#posts').append(post_container)
+      createPost(post, '#posts', username)
     })
   })
 }
@@ -121,14 +68,16 @@ function loadProfile() {
   profile_view.style.display = 'block'
 
   document.querySelector('#profile-content').innerHTML = ''
-  
+  document.querySelector('#profile-posts').innerHTML = ''
   // Fetch to Get User Info
   fetch('/profile')
   .then(response => response.json())
   .then(profile => {
     // For TEST
     console.log('profile:', profile)
-    console.log(profile["username"], profile["follows"], profile["followers"])
+    console.log(profile["user_info"])
+    console.log(profile["user_info"]["username"], profile["user_info"]["follows"], profile["user_info"]["followers"])
+    const username = profile["user_info"]["username"]
 
     // Create Elements
     const profile_container = document.createElement('div')
@@ -146,7 +95,7 @@ function loadProfile() {
       const div = document.createElement('div')
       console.log('element:', element)
       div.classList.add(element)
-      div.innerHTML = profile[element]
+      div.innerHTML = profile["user_info"][element]
       profile_DOM[`profile-${element}`] = div
     })
 
@@ -166,10 +115,76 @@ function loadProfile() {
     profile_container.append(profile_follow_container)
     document.querySelector('#profile-content').append(profile_container)
 
-    console.log(profile["posts"])
+    // Create User's Posts and Render
+    profile["posts"].forEach(post => {
+      const poster = post["poster"]
+      const content = post["content"]
+      const likes = post["likes"]
+      const timestamp = post["timestamp"]
+      // For TEST
+      console.log(poster, content, likes, timestamp)
+      createPost(post, "#profile-posts", username)
+    })
 
   })
   .catch(error => {
     console.log('error:', error)
   })
+}
+
+function createPost(post, target_DOM_id, username) {
+  const poster = post["poster"]
+  const content = post["content"]
+  const likes = post["likes"]
+  const timestamp = post["timestamp"]
+  // For TEST
+  console.log(poster, content, likes, timestamp)
+
+  // div.post_container>div.poster+button.edit-button+div.post-content+div.post-timestamp+div.post-likes+div.post-comment
+
+  // CREATE POST AND RENDER
+  // Create elements
+  const post_container = document.createElement('div')
+  post_container.classList.add('post_container')
+
+  const post_header = document.createElement('div')
+  post_header.classList.add('post_header')
+
+  const post_footer = document.createElement('div')
+  post_footer.classList.add('post_footer')
+
+  post_elements = {
+    'post_poster': poster,
+    'post_content': content,
+    'post_timestamp': timestamp,
+    'post_likes': `&#9829;${likes}`,
+    'post_comment': 'comment'}
+
+  const elements = {}
+  
+  // create divs from post_elements and save to elements
+  Object.keys(post_elements).forEach(element => {
+    const div = document.createElement('div')
+    div.classList.add(element)
+    div.innerHTML = post_elements[element]
+    elements[element] = div
+  })
+
+  const button_wrapper = document.createElement('div')
+  button_wrapper.classList.add('button_wrapper')
+
+  // Add Edit Button if poster is the user
+  if (username == poster) {
+    const edit_button = document.createElement('button')
+    edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
+    edit_button.innerHTML = 'Edit'
+    button_wrapper.append(edit_button)
+  }
+
+  post_header.append(elements["post_poster"], elements["post_timestamp"], button_wrapper)
+  post_container.append(post_header, elements["post_content"])
+
+  post_footer.append(elements["post_comment"], elements["post_likes"])
+  post_container.append(post_footer)
+  document.querySelector(target_DOM_id).append(post_container)
 }
