@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Use Buttons to Toggle Views
   document.querySelector('#all-posts').addEventListener('click', loadPosts)
   document.querySelector('#following').addEventListener('click', loadFollowing)
-  document.querySelector('#username').addEventListener('click', loadProfile)
+  document.querySelector('#username').addEventListener('click', () => {
+    loadProfile()
+  })
 
   // By Default, Load All Posts View
   loadPosts()
@@ -46,7 +48,7 @@ function loadPosts() {
   following_view.style.display = 'none'
   profile_view.style.display = 'none'
 
-  const posts = document.querySelector('#posts').innerHTML = ''
+  document.querySelector('#posts').innerHTML = ''
   // Fetch to Load Posts
   fetch('/posts')
   .then(response => response.json())
@@ -80,7 +82,7 @@ function loadFollowing() {
 
 }
 
-function loadProfile() {
+function loadProfile(usernameArg='') {
   console.log('loadProfile')
   post_view.style.display = 'none'
   following_view.style.display = 'none'
@@ -88,8 +90,12 @@ function loadProfile() {
 
   document.querySelector('#profile-content').innerHTML = ''
   document.querySelector('#profile-posts').innerHTML = ''
+  // ForTest
+  console.log('usernameArg:', usernameArg)
+  let url = usernameArg == '' ? '/profile' : `/profile/${usernameArg}`
+  console.log('url:', url)
   // Fetch to Get User Info
-  fetch('/profile')
+  fetch(url)
   .then(response => response.json())
   .then(profile => {
     // For TEST
@@ -118,12 +124,14 @@ function loadProfile() {
       profile_DOM[`profile-${element}`] = div
     })
 
-    // create edit button
+    // create edit button if current user is the user accessing
     const edit_button_container = document.createElement('div')
-    const edit_button = document.createElement('button')
-    edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
-    edit_button.innerHTML = 'Edit'
-    edit_button_container.append(edit_button)
+    if (!usernameArg) {
+      const edit_button = document.createElement('button')
+      edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
+      edit_button.innerHTML = 'Edit'
+      edit_button_container.append(edit_button)
+    }
 
     profile_header.append(profile_DOM["profile-username"], edit_button_container)
     profile_container.append(profile_header, profile_DOM["profile-introduction"])
@@ -142,7 +150,13 @@ function loadProfile() {
       const timestamp = post["timestamp"]
       // For TEST
       console.log(poster, content, likes, timestamp)
-      createPost(post, "#profile-posts", username)
+
+      if (usernameArg) {
+        createPost(post, "#profile-posts")
+      } else {
+        createPost(post, "#profile-posts", username)
+      }
+      
     })
 
   })
@@ -187,6 +201,11 @@ function createPost(post, target_DOM_id, username='') {
     div.classList.add(element)
     div.innerHTML = post_elements[element]
     elements[element] = div
+  })
+
+  // Add EventListener to USERNAME, enable profile page
+  elements["post_poster"].addEventListener('click', () => {
+    loadProfile(poster)
   })
 
   // Add EventListener to post_likes, enable like/unlike

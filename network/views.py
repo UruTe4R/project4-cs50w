@@ -49,13 +49,7 @@ def posts(request):
             }, status=200)
 
 @login_required
-def profile(request):
-    # Define follows and followers
-    user = request.user
-    follows_and_followers = user.get_follow_and_follower()
-    follows = follows_and_followers["follows"]
-    followers = follows_and_followers["followers"]
-
+def profile(request, username=None):
     # Edit profile introduction
     if request.method == "POST":
         user_with_new_introduction = IntroductionForm(request.POST)
@@ -66,7 +60,17 @@ def profile(request):
         return HttpResponseRedirect(reverse("index"))
     # GET => return JSON about user and user's posts
     else:
-        posts = Post.objects.filter(poster=user).order_by("-timestamp")
+        # Check if there is target user or not
+        if not username:
+            user = request.user
+            posts = Post.objects.filter(poster=user).order_by("-timestamp")
+        else:
+            user =User.objects.get(username=username)
+            posts = Post.objects.filter(poster=user).order_by("-timestamp")
+
+        follows_and_followers = user.get_follow_and_follower()
+        follows = follows_and_followers["follows"]
+        followers = follows_and_followers["followers"]
         post_list = [{
             "poster": post.poster.username,
             "timestamp": post.timestamp,
@@ -83,6 +87,9 @@ def profile(request):
             },
             "posts": post_list
         }, status=200)
+    
+def visit_profile(request, username):
+    ...
 @login_required
 def following(request):
     user = request.user
