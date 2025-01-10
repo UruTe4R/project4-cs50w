@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.db import models
-
+from django.contrib.auth.decorators import login_required
 
 from .models import User, Post, Comment
 from .forms import PostForm, IntroductionForm
@@ -18,6 +18,7 @@ def index(request):
         "introduction_form": Introduction_form
     })
 
+@login_required
 def posts(request):
     # Get all posts in descending order
     posts = Post.objects.all().order_by('-timestamp')
@@ -46,7 +47,8 @@ def posts(request):
             "post_list": post_list,
             "user": request.user.username
             }, status=200)
-    
+
+@login_required
 def profile(request):
     # Define follows and followers
     user = request.user
@@ -81,7 +83,7 @@ def profile(request):
             },
             "posts": post_list
         }, status=200)
-    
+@login_required
 def following(request):
     user = request.user
     # who are this user following
