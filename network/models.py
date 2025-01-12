@@ -35,18 +35,18 @@ class Post(models.Model):
 
     def liked_by(self, username):
         """
-        Add a user to the likes field, and ensure the poster cannot like their own post.
+        Add or Remove a user to/from the likes field
         """
         try:
             # Fetch the user by username
             user = User.objects.get(username=username)
 
-            # Add the user to the likes
-            self.likes.add(user)
+            # If the poster is in likes field, remove them
+            if user in self.likes.all():
+                self.likes.remove(user)
+            else:
+                self.likes.add(user)
 
-            # If the poster is in likes, remove them
-            if self.poster == user:
-                self.likes.remove(self.poster)
         except User.DoesNotExist:
             raise ValueError(f"User with username '{username}' does not exist.")
 

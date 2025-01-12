@@ -3,7 +3,7 @@
 // liking feature
 // comment feature
 // UI when hovered over follows and followers 
-// Edit profile and posts
+// Edit profile
 //  //
 
 // Define Nav Buttons
@@ -170,11 +170,15 @@ function createPost(post, target_DOM_id, username='') {
   const poster = post["poster"]
   const content = post["content"]
   const likes = post["likes"]
+  const liked = post["liked"]
   const timestamp = post["timestamp"]
   // For TEST
   console.log(id ,poster, content, likes, timestamp)
 
   // div.post_container>div.poster+button.edit-button+div.post-content+div.post-timestamp+div.post-likes+div.post-comment
+
+  // Get csrf_token from input tag in html
+  const csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value
 
   // CREATE POST AND RENDER
   // Create elements
@@ -208,9 +212,33 @@ function createPost(post, target_DOM_id, username='') {
   elements["post_poster"].addEventListener('click', () => {
     loadProfile(poster)
   })
+  // Change like button color
+  change_button_color(elements["post_likes"], 'black', 'red', liked)
 
   // Add EventListener to post_likes, enable like/unlike
-  elements["post_likes"]
+  elements["post_likes"].addEventListener('click', () => {
+    
+    // fetch and toggle like
+    fetch(`like/post/${id}`, {
+      method: 'PUT',
+      headers: {
+        "X-CSRFToken": csrf_token
+      }
+    })
+    .then(response => response.json())
+    .then(result => {
+        elements["post_likes"].innerHTML = `&#9829;${result["new_likes"]}`
+        // toggle color
+        change_button_color(elements["post_likes"], 'black', 'red', result["liked"])
+      if (result["error"]){
+        console.log('error:', result["error"])
+      }
+    })
+    .catch(error => {
+      console.log('error:', error)
+    })
+
+  })
 
   const button_wrapper = document.createElement('div')
   button_wrapper.classList.add('button_wrapper')
@@ -238,9 +266,7 @@ function createPost(post, target_DOM_id, username='') {
       button_wrapper.append(save_button)
       // if save button is clicked, fetch and update post
       save_button.addEventListener('click', () => {
-        // need to define csrf_token
-        const csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value
-        console.log('csrf_token:', csrf_token)
+        
         fetch(`/edit/post/${id}`, {
           method: 'PUT',
           headers: {
@@ -281,4 +307,13 @@ function createPost(post, target_DOM_id, username='') {
   post_footer.append(elements["post_comment"], elements["post_likes"])
   post_container.append(post_footer)
   document.querySelector(target_DOM_id).append(post_container)
+}
+
+function change_button_color(HTMLelement, b_color, a_color, bool) {
+  if (bool) {
+    HTMLelement.style.color = a_color
+  } else {
+    HTMLelement.style.color = b_color
+  }
+  console.log(`color changed to ${HTMLelement.style.color}`)
 }

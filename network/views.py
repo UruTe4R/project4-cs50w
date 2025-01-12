@@ -42,6 +42,7 @@ def posts(request):
             "poster": post.poster.username,
             "content": post.content,
             "likes": post.likes.aggregate(models.Count('likes'))["likes__count"],
+            "liked": True if request.user in post.likes.all() else False,
             "timestamp": post.timestamp
         } for post in posts]
             
@@ -65,6 +66,17 @@ def edit_post(request, post_id):
             return JsonResponse({"error": "Content's max_length is 300."}, status=400)
         return JsonResponse({"message": "Post edited successfully"}, status=201)
     
+def like_post(request, post_id):
+    if request.method == "PUT":
+        user = request.user
+        post = Post.objects.filter(pk=post_id).first()
+        try:
+            post.liked_by(user.username)
+        except ValueError:
+            return JsonResponse({"error": "user is not autheticated."}, status=400)
+        return JsonResponse({
+            "new_likes": post.likes.all().count(),
+            "liked": True if user in post.likes.all() else False}, status=201)
 
 @login_required
 def profile(request, username=None):
@@ -94,7 +106,8 @@ def profile(request, username=None):
             "poster": post.poster.username,
             "timestamp": post.timestamp,
             "content": post.content,
-            "likes": post.likes.aggregate(models.Count("likes"))["likes__count"]
+            "likes": post.likes.aggregate(models.Count("likes"))["likes__count"],
+            "liked": True if request.user in post.likes.all() else False
         } for post in posts]
 
         return JsonResponse({
