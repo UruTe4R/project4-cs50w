@@ -216,3 +216,9 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+/* edit form */
+#edit-form {
+  height: 100%;
+  width: 80vw;
+}

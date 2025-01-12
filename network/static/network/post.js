@@ -166,12 +166,13 @@ function loadProfile(usernameArg='') {
 }
 
 function createPost(post, target_DOM_id, username='') {
+  const id = post["id"]
   const poster = post["poster"]
   const content = post["content"]
   const likes = post["likes"]
   const timestamp = post["timestamp"]
   // For TEST
-  console.log(poster, content, likes, timestamp)
+  console.log(id ,poster, content, likes, timestamp)
 
   // div.post_container>div.poster+button.edit-button+div.post-content+div.post-timestamp+div.post-likes+div.post-comment
 
@@ -219,10 +220,58 @@ function createPost(post, target_DOM_id, username='') {
     const edit_button = document.createElement('button')
     edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
     edit_button.innerHTML = 'Edit'
-    edit_button.addEventListener('click', (e) => {
-      
-    })
     button_wrapper.append(edit_button)
+    edit_button.addEventListener('click', () => {
+      // clear innerHTML
+      const before = elements["post_content"].innerHTML
+      elements["post_content"].innerHTML = ''
+      // show edit form to user
+      const edit_form = document.createElement('textarea')
+      edit_form.classList.add('form-textarea')
+      edit_form.id = 'edit-form'
+      edit_form.value = before
+      // change edit button to save button
+      edit_button.remove()
+      const save_button = document.createElement('button')
+      save_button.classList.add('save_button', 'btn', 'btn-outline-success')
+      save_button.innerHTML = 'Save'
+      button_wrapper.append(save_button)
+      // if save button is clicked, fetch and update post
+      save_button.addEventListener('click', () => {
+        // need to define csrf_token
+        const csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value
+        console.log('csrf_token:', csrf_token)
+        fetch(`/edit/post/${id}`, {
+          method: 'PUT',
+          headers: {
+            'X-CSRFToken': csrf_token
+          },
+          body: JSON.stringify({
+            content: edit_form.value
+          })
+        })
+        .then(response => response.json())
+        .then(result => {
+          // apply change to post view
+          if (result["message"]) {
+            console.log(result["message"])
+            elements["post_content"].innerHTML = edit_form.value
+          } else {
+            console.log(result["error"])
+            elements["post_content"].innerHTML = before
+          }
+        })
+        .catch(error => {
+          console.log('error:', error)
+        })
+        
+        // after done editing, change save button to edit button
+        save_button.remove()
+        button_wrapper.append(edit_button)
+      })
+
+      elements["post_content"].append(edit_form)
+    })
   }
 
   // Append everythihn to render

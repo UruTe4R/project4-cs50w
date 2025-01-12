@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.db import models
 from django.contrib.auth.decorators import login_required
+import json
 
 from .models import User, Post, Comment
 from .forms import PostForm, IntroductionForm
@@ -37,6 +38,7 @@ def posts(request):
     # GET
     else:
         post_list = [{
+            "id": post.id,
             "poster": post.poster.username,
             "content": post.content,
             "likes": post.likes.aggregate(models.Count('likes'))["likes__count"],
@@ -47,6 +49,22 @@ def posts(request):
             "post_list": post_list,
             "user": request.user.username
             }, status=200)
+
+def edit_post(request, post_id):
+    print(request.method)
+    if request.method == "PUT":
+        # Convert byte string to python dict
+        data = json.loads(request.body)
+        post = Post.objects.filter(pk=post_id).first()
+        # Check if the poster is the user
+        if not post.poster == request.user:
+            return JsonResponse({"error": "You are not the poster of this post"}, status=400)
+        try:
+            post.edit_post(data["content"])
+        except ValueError:
+            return JsonResponse({"error": "Content's max_length is 300."}, status=400)
+        return JsonResponse({"message": "Post edited successfully"}, status=201)
+    
 
 @login_required
 def profile(request, username=None):
@@ -72,6 +90,7 @@ def profile(request, username=None):
         follows = follows_and_followers["follows"]
         followers = follows_and_followers["followers"]
         post_list = [{
+            "id": post.id,
             "poster": post.poster.username,
             "timestamp": post.timestamp,
             "content": post.content,
@@ -88,8 +107,8 @@ def profile(request, username=None):
             "posts": post_list
         }, status=200)
     
-def visit_profile(request, username):
-    ...
+
+
 @login_required
 def following(request):
     user = request.user
@@ -111,9 +130,6 @@ def following(request):
     return JsonResponse({
         "posts": posts,
     }, status=200)
-        
-def edit_post(request, post_id):
-    ...
 
 
 def login_view(request):

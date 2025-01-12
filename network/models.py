@@ -28,8 +28,9 @@ class Post(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def edit_post(self, new_content):
+        if len(new_content) > 300:
+            raise ValueError("Content's max_length is 300.")
         self.content = new_content
-        self.timestamp = now()
         self.save()
 
     def liked_by(self, username):
