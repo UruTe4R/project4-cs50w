@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils.timezone import now
 
 
 class User(AbstractUser):
@@ -26,14 +27,28 @@ class Post(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    def edit_post(self, new_content):
+        self.content = new_content
+        self.timestamp = now()
+        self.save()
+
     def liked_by(self, username):
         """
-        Add a user to the likes field
+        Add a user to the likes field, and ensure the poster cannot like their own post.
         """
-        # Poster cannot like their own post
-        if self.poster in self.likes:
-            self.likes.remove(self.poster)
-        User.objects.get(username=username).likes.add(self)
+        try:
+            # Fetch the user by username
+            user = User.objects.get(username=username)
+
+            # Add the user to the likes
+            self.likes.add(user)
+
+            # If the poster is in likes, remove them
+            if self.poster == user:
+                self.likes.remove(self.poster)
+        except User.DoesNotExist:
+            raise ValueError(f"User with username '{username}' does not exist.")
+
 
 
     def __str__(self):

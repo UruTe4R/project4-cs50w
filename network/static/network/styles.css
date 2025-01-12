@@ -81,6 +81,7 @@ body {
 }
 .post_poster:hover {
   cursor: pointer;
+  text-decoration: underline;
 }
 
 .post_timestamp {

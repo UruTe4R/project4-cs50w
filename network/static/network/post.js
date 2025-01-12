@@ -219,6 +219,9 @@ function createPost(post, target_DOM_id, username='') {
     const edit_button = document.createElement('button')
     edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
     edit_button.innerHTML = 'Edit'
+    edit_button.addEventListener('click', (e) => {
+      
+    })
     button_wrapper.append(edit_button)
   }
 
