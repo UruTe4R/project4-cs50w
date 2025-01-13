@@ -61,10 +61,16 @@ function loadPosts(page=1) {
     const username = post_info["user"]
     const paginated_posts = post_info["paginated_posts"]
     const posts = paginated_posts[`page${page}`]["post_list"]
+    const page_n = Object.keys(paginated_posts).length
     // By default render first page
     posts.forEach(post => {
       createPost(post, '#posts', username)
     })
+    // Add pagination
+    add_pagination('#posts', page, loadPosts, page_n)
+  })
+  .catch(error => {
+    console.log('error:', error)
   })
 }
 
@@ -84,10 +90,12 @@ function loadFollowing(page=1) {
     console.log('following:', following)
     const paginated_posts = following["paginated_posts"]
     const posts = paginated_posts[`page${page}`]["post_list"]
+    const page_n = Object.keys(paginated_posts).length
     console.log('posts:', posts)
     posts.forEach(post => {
       createPost(post, '#following-content')
     })
+    add_pagination('#following-content', page, loadFollowing, page_n)
   })
 
 }
@@ -100,18 +108,12 @@ function loadProfile(usernameArg='', page=1) {
 
   document.querySelector('#profile-content').innerHTML = ''
   document.querySelector('#profile-posts').innerHTML = ''
-  // ForTest
-  console.log('usernameArg:', usernameArg)
   let url = usernameArg == '' ? '/profile' : `/profile/${usernameArg}`
-  console.log('url:', url)
+  
   // Fetch to Get User Info
   fetch(url)
   .then(response => response.json())
   .then(profile => {
-    // For TEST
-    console.log('profile:', profile)
-    console.log(profile["user_info"])
-    console.log(profile["user_info"]["username"], profile["user_info"]["follows"], profile["user_info"]["followers"])
     const username = profile["user_info"]["username"]
 
     // Create Elements
@@ -155,14 +157,8 @@ function loadProfile(usernameArg='', page=1) {
     // Create User's Posts and Render
     const paginated_posts = profile["paginated_posts"]
     const posts = paginated_posts[`page${page}`]["post_list"]
+    const page_n = Object.keys(paginated_posts).length
     posts.forEach(post => {
-      const poster = post["poster"]
-      const content = post["content"]
-      const likes = post["likes"]
-      const timestamp = post["timestamp"]
-      // For TEST
-      console.log(poster, content, likes, timestamp)
-
       if (usernameArg) {
         createPost(post, "#profile-posts")
       } else {
@@ -171,6 +167,7 @@ function loadProfile(usernameArg='', page=1) {
       
     })
 
+    add_pagination('#profile-posts', page, loadProfile, page_n)
   })
   .catch(error => {
     console.log('error:', error)
@@ -184,8 +181,7 @@ function createPost(post, target_DOM_id, username='') {
   const likes = post["likes"]
   const liked = post["liked"]
   const timestamp = post["timestamp"]
-  // For TEST
-  console.log(id ,poster, content, likes, timestamp)
+
 
   // div.post_container>div.poster+button.edit-button+div.post-content+div.post-timestamp+div.post-likes+div.post-comment
 
@@ -327,5 +323,76 @@ function change_button_color(HTMLelement, b_color, a_color, bool) {
   } else {
     HTMLelement.style.color = b_color
   }
-  console.log(`color changed to ${HTMLelement.style.color}`)
+}
+function add_pagination(target_DOM_id, current_page_n=1, render_function, number_of_pages) {
+  console.log('add_pagination', target_DOM_id, current_page_n, render_function, number_of_pages)
+  
+  // add pagination
+  nav = document.createElement('nav')
+  nav.setAttribute('aria-label', 'Page navigation')
+  nav.classList.add('pagination_container')
+  ul = document.createElement('ul')
+  ul.classList.add('pagination')
+  nav.append(ul)
+  document.querySelector(target_DOM_id).append(nav)
+
+  // add previous button to ul
+  li = document.createElement('li')
+  li.classList.add('page-item')
+  a_before = document.createElement('a')
+  a_before.classList.add('page-link')
+  a_before.setAttribute('href', `#`)
+  a_before.innerHTML = 'Previous'
+  a_before.addEventListener('click', () => {
+    if (current_page_n > 1) {
+      const new_page_n = current_page_n - 1
+      render_function(new_page_n)
+    } 
+  })
+  // page does not go further
+  if (current_page_n === 1) {
+    li.classList.add('disabled')
+  }
+  li.append(a_before)
+  ul.append(li)
+
+  // add page numbers to ul
+  for (let i = 0; i < number_of_pages; i++) {
+    li = document.createElement('li')
+    li.classList.add('page-item')
+    if (i + 1 == current_page_n) {
+      li.classList.add('active')
+    }
+    a = document.createElement('a')
+    a.classList.add('page-link')
+    a.setAttribute('href', `#`)
+    a.innerHTML = i + 1
+    a.addEventListener('click', () => {
+      const new_page_n = i + 1
+      render_function(new_page_n)
+    })
+    li.append(a)
+    ul.append(li)
+  }
+
+  // add next button to ul
+  li = document.createElement('li')
+  li.classList.add('page-item')
+  a_after = document.createElement('a')
+  a_after.classList.add('page-link')
+  a_after.setAttribute('href', `#`)
+  a_after.innerHTML = 'Next'
+  a_after.addEventListener('click', () => {
+    if (current_page_n < number_of_pages) {
+      const new_page_n = current_page_n + 1
+      render_function(new_page_n)
+    }
+  })
+  // page does not go further
+  if (current_page_n === number_of_pages) {
+    li.classList.add('disabled')
+  }
+  li.append(a_after)
+  ul.append(li)
+
 }
