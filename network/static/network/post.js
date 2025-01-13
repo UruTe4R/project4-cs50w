@@ -1,6 +1,5 @@
 // TODOS
 // Follow and Unfollow
-// pagination
 // comment feature
 // UI when hovered over follows and followers 
 // Edit profile
@@ -101,6 +100,8 @@ function loadFollowing(page=1) {
 }
 
 function loadProfile(usernameArg='', page=1) {
+  // if there is not usernameArg, user is visiting their own profile
+
   console.log('loadProfile')
   post_view.style.display = 'none'
   following_view.style.display = 'none'
@@ -109,12 +110,17 @@ function loadProfile(usernameArg='', page=1) {
   document.querySelector('#profile-content').innerHTML = ''
   document.querySelector('#profile-posts').innerHTML = ''
   let url = usernameArg == '' ? '/profile' : `/profile/${usernameArg}`
+
+  // Get csrf_token
+  const csrf_token = document.querySelector("[name=csrfmiddlewaretoken]").value
   
   // Fetch to Get User Info
   fetch(url)
   .then(response => response.json())
   .then(profile => {
     const username = profile["user_info"]["username"]
+    const following = profile["following"]
+    console.log("following:", following)
 
     // Create Elements
     const profile_container = document.createElement('div')
@@ -143,6 +149,43 @@ function loadProfile(usernameArg='', page=1) {
       edit_button.classList.add('edit_button', 'btn', 'btn-outline-primary')
       edit_button.innerHTML = 'Edit'
       edit_button_container.append(edit_button)
+
+    } else {
+
+      // create follow button
+      const follow_button = document.createElement('button')
+      follow_button.classList.add('follow_button', 'btn')
+      if (following) {
+        follow_button.classList.add('btn-outline-danger')
+        follow_button.innerHTML = 'Unfollow'
+      } else {
+        follow_button.classList.add('btn-outline-success')
+        follow_button.innerHTML = 'Follow'
+      }
+      
+      // follow feature
+      follow_button.addEventListener('click', () => {
+        console.log('usernameArg:', usernameArg)
+        fetch(`/follow/${usernameArg}`, {
+          method: 'PUT',
+          headers: {
+            "X-CSRFToken": csrf_token
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data["message"]) {
+            console.log(data["message"])
+            loadProfile(usernameArg)
+          } else {
+            console.log(data["error"])
+          }
+        })
+        .catch(error => {
+          console.log('error:', error)
+        })
+      })
+      edit_button_container.append(follow_button)
     }
 
     profile_header.append(profile_DOM["profile-username"], edit_button_container)

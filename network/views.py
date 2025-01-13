@@ -66,15 +66,7 @@ def posts(request):
         return HttpResponseRedirect(reverse("index"))
     # GET
     else:
-        post_list = [{
-            "id": post.id,
-            "poster": post.poster.username,
-            "content": post.content,
-            "likes": post.likes.all().count(),
-            "liked": True if request.user in post.likes.all() else False,
-            "timestamp": post.timestamp
-        } for post in posts]
-            
+        
         return JsonResponse({
             "paginated_posts": paginated_posts,
             "user": request.user.username
@@ -137,15 +129,24 @@ def profile(request, username=None):
         paginated_posts = paginate_posts(10, posts, request)
 
         return JsonResponse({
+            "following": True if user in request.user.follow.all() else False,
             "user_info":{
-            "username": user.username,
-            "introduction":user.introduction,
-            "follows": follows,
-            "followers": followers
-            },
+                "username": user.username,
+                "introduction":user.introduction,
+                "follows": follows,
+                "followers": followers
+                },
             "paginated_posts": paginated_posts
         }, status=200)
-    
+
+def follow(request, username):
+    if request.method == "PUT":
+        user = request.user
+        try:
+            result = user.follow_or_unfollow(username)
+        except ValueError:
+            return JsonResponse({"error": "You cannot follow yourself."}, status=400)
+        return JsonResponse({"message": result}, status=201)
 
 
 @login_required

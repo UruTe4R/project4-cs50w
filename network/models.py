@@ -10,6 +10,17 @@ class User(AbstractUser):
 
     introduction = models.TextField(max_length=200, blank=True, null=True, default="Hi I'm new!")
 
+    def follow_or_unfollow(self, username):
+        target_user = User.objects.get(username=username)
+        if target_user == self:
+            raise ValueError("You cannot follow yourself.")
+        if not target_user in self.follow.all():
+            self.follow.add(target_user)
+            return "followed"
+        else:
+            self.follow.remove(target_user)
+            return "unfollowed"
+         
     def get_follow_and_follower(self):
         return {
             "follows" : self.follow.count(),
