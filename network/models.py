@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.timezone import now
 
 
+
 class User(AbstractUser):
     # symmetrical is False because user can follow and the follower user does not need to follow back
     follow = models.ManyToManyField('self', symmetrical=False, related_name="follows")
@@ -27,6 +28,7 @@ class Post(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    
     def edit_post(self, new_content):
         if len(new_content) > 300:
             raise ValueError("Content's max_length is 300.")
@@ -53,7 +55,7 @@ class Post(models.Model):
 
 
     def __str__(self):
-        return f"{self.poster}: {self.content}"
+        return f"{self.poster}: {self.content[:20] + '...' if len(self.content) > 20 else self.content}"
     
 class Comment(models.Model):
     commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="commenter")

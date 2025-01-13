@@ -1,4 +1,5 @@
 // TODOS
+// Follow and Unfollow
 // pagination
 // comment feature
 // UI when hovered over follows and followers 
@@ -17,8 +18,12 @@ const profile_view = document.querySelector('#profile-view')
 
 document.addEventListener('DOMContentLoaded', () => {
   // Use Buttons to Toggle Views
-  document.querySelector('#all-posts').addEventListener('click', loadPosts)
-  document.querySelector('#following').addEventListener('click', loadFollowing)
+  document.querySelector('#all-posts').addEventListener('click', () => {
+    loadPosts()
+  })
+  document.querySelector('#following').addEventListener('click', () => {
+    loadFollowing()
+  })
   document.querySelector('#username').addEventListener('click', () => {
     loadProfile()
   })
@@ -40,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 })
 
-function loadPosts() {
+function loadPosts(page=1) {
   console.log('loadPosts')
   // Only Show All Posts
   post_view.style.display = 'block'
@@ -51,17 +56,20 @@ function loadPosts() {
   // Fetch to Load Posts
   fetch('/posts')
   .then(response => response.json())
-  .then(posts => {
-    console.log('posts:', posts)
-    const username = posts["user"]
-    posts["post_list"].forEach(post => {
+  .then(post_info => {
+    console.log('posts:', post_info)
+    const username = post_info["user"]
+    const paginated_posts = post_info["paginated_posts"]
+    const posts = paginated_posts[`page${page}`]["post_list"]
+    // By default render first page
+    posts.forEach(post => {
       createPost(post, '#posts', username)
     })
   })
 }
 
 
-function loadFollowing() {
+function loadFollowing(page=1) {
   console.log('loadFollowing')
   post_view.style.display = 'none'
   following_view.style.display = 'block'
@@ -74,14 +82,17 @@ function loadFollowing() {
   .then(response => response.json())
   .then(following => {
     console.log('following:', following)
-    following["posts"].forEach(post => {
+    const paginated_posts = following["paginated_posts"]
+    const posts = paginated_posts[`page${page}`]["post_list"]
+    console.log('posts:', posts)
+    posts.forEach(post => {
       createPost(post, '#following-content')
     })
   })
 
 }
 
-function loadProfile(usernameArg='') {
+function loadProfile(usernameArg='', page=1) {
   console.log('loadProfile')
   post_view.style.display = 'none'
   following_view.style.display = 'none'
@@ -142,7 +153,9 @@ function loadProfile(usernameArg='') {
     document.querySelector('#profile-content').append(profile_container)
 
     // Create User's Posts and Render
-    profile["posts"].forEach(post => {
+    const paginated_posts = profile["paginated_posts"]
+    const posts = paginated_posts[`page${page}`]["post_list"]
+    posts.forEach(post => {
       const poster = post["poster"]
       const content = post["content"]
       const likes = post["likes"]

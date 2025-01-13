@@ -9,6 +9,7 @@ import json
 
 from .models import User, Post, Comment
 from .forms import PostForm, IntroductionForm
+from .utils import paginate_posts
 
 
 def index(request):
@@ -21,8 +22,36 @@ def index(request):
 
 @login_required
 def posts(request):
-    # Get all posts in descending order
+    # # Get all posts in descending order
     posts = Post.objects.all().order_by('-timestamp')
+
+    # # Paginate posts by 10
+    # p = Paginator(posts, 10)
+    # # How many posts
+    # print("p.count", p.count)
+    # # How many pages with 10 posts
+    # print("p.num_pages", p.num_pages)
+    # # range(1, p.num_pages+1)
+    # print("p.page_range", p.page_range)
+    
+    # paginated_posts = {
+    #     f"page{page_n}": {
+    #     "has_previous": p.page(page_n).has_previous(),
+    #     "has_next": p.page(page_n).has_next(),
+    #     "post_list": [{
+    #         "id": post.id,
+    #         "poster": post.poster.username,
+    #         "content": post.content,
+    #         "likes": post.likes.all().count(),
+    #         "liked": True if request.user in post.likes.all() else False,
+    #         "timestamp": post.timestamp
+    #     } for post in p.page(page_n).object_list]
+    # } for page_n in p.page_range}
+    # print("paginated_posts", paginated_posts)
+
+    paginated_posts = paginate_posts(10, posts, request)
+    
+    # POST => create new post
     if request.method == "POST":
         print("request.POST:", request.POST)
         post = PostForm(request.POST)
@@ -41,13 +70,13 @@ def posts(request):
             "id": post.id,
             "poster": post.poster.username,
             "content": post.content,
-            "likes": post.likes.aggregate(models.Count('likes'))["likes__count"],
+            "likes": post.likes.all().count(),
             "liked": True if request.user in post.likes.all() else False,
             "timestamp": post.timestamp
         } for post in posts]
             
         return JsonResponse({
-            "post_list": post_list,
+            "paginated_posts": paginated_posts,
             "user": request.user.username
             }, status=200)
 
@@ -94,23 +123,18 @@ def profile(request, username=None):
     else:
         # Check if there is target user or not
         if not username:
+            # user is current user
             user = request.user
             posts = Post.objects.filter(poster=user).order_by("-timestamp")
         else:
-            user =User.objects.get(username=username)
+            # user is someone else
+            user = User.objects.get(username=username)
             posts = Post.objects.filter(poster=user).order_by("-timestamp")
 
         follows_and_followers = user.get_follow_and_follower()
         follows = follows_and_followers["follows"]
         followers = follows_and_followers["followers"]
-        post_list = [{
-            "id": post.id,
-            "poster": post.poster.username,
-            "timestamp": post.timestamp,
-            "content": post.content,
-            "likes": post.likes.aggregate(models.Count("likes"))["likes__count"],
-            "liked": True if request.user in post.likes.all() else False
-        } for post in posts]
+        paginated_posts = paginate_posts(10, posts, request)
 
         return JsonResponse({
             "user_info":{
@@ -119,7 +143,7 @@ def profile(request, username=None):
             "follows": follows,
             "followers": followers
             },
-            "posts": post_list
+            "paginated_posts": paginated_posts
         }, status=200)
     
 
@@ -129,23 +153,12 @@ def following(request):
     user = request.user
     # who are this user following
     follows = user.follow.all()
-    # get posts from those followed users
-    posts = [
-        {
-        "id": post.id,
-        "poster": post.poster.username,
-        "timestamp": post.timestamp,
-        "content": post.content,
-        "likes": post.likes.aggregate(models.Count("likes"))["likes__count"],
-        "liked": True if request.user in post.likes.all() else False
-        }
-        # first loop executed first
-        for follow in follows
-        for post in Post.objects.filter(poster=follow).order_by('-timestamp')
-        ]
+    # select * from post where poster in follows
+    posts = Post.objects.filter(poster__in=follows).order_by("-timestamp")
+    paginated_posts = paginate_posts(10, posts, request)
     
     return JsonResponse({
-        "posts": posts,
+        "paginated_posts": paginated_posts
     }, status=200)
 
 
