@@ -1,6 +1,5 @@
 // TODOS
-// Render following posts
-// liking feature
+// pagination
 // comment feature
 // UI when hovered over follows and followers 
 // Edit profile

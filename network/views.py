@@ -51,6 +51,7 @@ def posts(request):
             "user": request.user.username
             }, status=200)
 
+@login_required
 def edit_post(request, post_id):
     print(request.method)
     if request.method == "PUT":
@@ -65,7 +66,8 @@ def edit_post(request, post_id):
         except ValueError:
             return JsonResponse({"error": "Content's max_length is 300."}, status=400)
         return JsonResponse({"message": "Post edited successfully"}, status=201)
-    
+
+@login_required
 def like_post(request, post_id):
     if request.method == "PUT":
         user = request.user
@@ -130,10 +132,12 @@ def following(request):
     # get posts from those followed users
     posts = [
         {
+        "id": post.id,
         "poster": post.poster.username,
         "timestamp": post.timestamp,
         "content": post.content,
-        "likes": post.likes.aggregate(models.Count("likes"))["likes__count"]
+        "likes": post.likes.aggregate(models.Count("likes"))["likes__count"],
+        "liked": True if request.user in post.likes.all() else False
         }
         # first loop executed first
         for follow in follows
